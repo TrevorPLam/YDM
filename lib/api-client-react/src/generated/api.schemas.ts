@@ -8,3 +8,70 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface ContactSubmission {
+  /**
+   * Contact full name
+   * @minLength 2
+   * @maxLength 255
+   */
+  fullName: string;
+  /**
+   * Email address
+   * @maxLength 320
+   */
+  email: string;
+  /**
+   * Company name (optional)
+   * @maxLength 255
+   */
+  company?: string;
+  /**
+   * Contact message
+   * @minLength 10
+   * @maxLength 5000
+   */
+  message: string;
+  /**
+   * Phone number (optional)
+   * @maxLength 50
+   */
+  phone?: string;
+}
+
+export interface ContactResponse {
+  /** Contact ID */
+  id: number;
+  /** Public-facing contact ID */
+  publicId: string;
+  /** Contact full name */
+  fullName: string;
+  /** Email address */
+  email: string;
+  /** Company name */
+  company?: string;
+  /** Contact message */
+  message: string;
+  /** Phone number */
+  phone?: string;
+  /** Contact source */
+  source: string;
+  /** Contact status */
+  status: string;
+  /** Creation timestamp */
+  createdAt: string;
+}
+
+export type ErrorDetailsItem = {
+  /** Field with error */
+  field?: string;
+  /** Error message for field */
+  message?: string;
+};
+
+export interface Error {
+  /** Error message */
+  error: string;
+  /** Detailed validation errors */
+  details?: ErrorDetailsItem[];
+}

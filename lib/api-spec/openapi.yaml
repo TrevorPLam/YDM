@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: contacts
+    description: Contact form operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /contacts:
+    post:
+      operationId: submitContact
+      tags: [contacts]
+      summary: Submit contact form
+      description: Submit a contact form message and send email notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactSubmission"
+      responses:
+        "201":
+          description: Contact submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +66,97 @@ components:
           type: string
       required:
         - status
+    ContactSubmission:
+      type: object
+      properties:
+        fullName:
+          type: string
+          minLength: 2
+          maxLength: 255
+          description: Contact full name
+        email:
+          type: string
+          format: email
+          maxLength: 320
+          description: Email address
+        company:
+          type: string
+          maxLength: 255
+          description: Company name (optional)
+        message:
+          type: string
+          minLength: 10
+          maxLength: 5000
+          description: Contact message
+        phone:
+          type: string
+          maxLength: 50
+          description: Phone number (optional)
+      required:
+        - fullName
+        - email
+        - message
+    ContactResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Contact ID
+        publicId:
+          type: string
+          description: Public-facing contact ID
+        fullName:
+          type: string
+          description: Contact full name
+        email:
+          type: string
+          description: Email address
+        company:
+          type: string
+          description: Company name
+        message:
+          type: string
+          description: Contact message
+        phone:
+          type: string
+          description: Phone number
+        source:
+          type: string
+          description: Contact source
+        status:
+          type: string
+          description: Contact status
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+      required:
+        - id
+        - publicId
+        - fullName
+        - email
+        - message
+        - source
+        - status
+        - createdAt
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field with error
+              message:
+                type: string
+                description: Error message for field
+          description: Detailed validation errors
+      required:
+        - error
 

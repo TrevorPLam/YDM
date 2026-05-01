@@ -31,4 +31,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+// Root route
+app.get("/", (_req, res) => {
+  res.json({
+    message: "API Server is running",
+    endpoints: {
+      health: "/api/healthz",
+      api: "/api"
+    }
+  });
+});
+
 export default app;

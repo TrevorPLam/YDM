@@ -1,20 +1,50 @@
-// Export your models here. Add one export per file
-// export * from "./posts";
-//
-// Each model/table should ideally be split into different files.
-// Each model/table should define a Drizzle table, insert schema, and types:
-//
-//   import { pgTable, text, serial } from "drizzle-orm/pg-core";
-//   import { createInsertSchema } from "drizzle-zod";
-//   import { z } from "zod/v4";
-//
-//   export const postsTable = pgTable("posts", {
-//     id: serial("id").primaryKey(),
-//     title: text("title").notNull(),
-//   });
-//
-//   export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true });
-//   export type InsertPost = z.infer<typeof insertPostSchema>;
-//   export type Post = typeof postsTable.$inferSelect;
+// Export all database tables and schemas
+// Each model/table is split into separate files following domain boundaries
 
-export {}
+// Content Management bounded context
+export * from "./industries";
+export * from "./blog-posts";
+
+// Communication bounded context  
+export * from "./contacts";
+export * from "./newsletter";
+
+// Identity & Access bounded context
+export * from "./users";
+
+// Re-export all tables for easy import
+export { industries } from "./industries";
+export { blogPosts } from "./blog-posts";
+export { contacts } from "./contacts";
+export { newsletterSubscriptions } from "./newsletter";
+export { users } from "./users";
+
+// Re-export all enums
+export { blogPostStatusEnum } from "./blog-posts";
+export { userRoleEnum } from "./users";
+
+// Re-export all types (Zod schemas temporarily disabled due to type compatibility)
+export {
+  type InsertIndustry,
+  type Industry,
+} from "./industries";
+
+export {
+  type InsertBlogPost,
+  type BlogPost,
+} from "./blog-posts";
+
+export {
+  type InsertContact,
+  type Contact,
+} from "./contacts";
+
+export {
+  type InsertNewsletterSubscription,
+  type NewsletterSubscription,
+} from "./newsletter";
+
+export {
+  type InsertUser,
+  type User,
+} from "./users";
