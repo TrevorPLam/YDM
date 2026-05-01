@@ -1,0 +1,61 @@
+Project: Build a futuristic, high-fidelity marketing agency website prototype named "Nexus Digital". The site will showcase our ability to design cutting-edge websites for niche industries, using only placeholder content.
+
+Core Purpose: Create a visually stunning, tech-forward site that uses advanced UI design (glassmorphism, dynamic storytelling, interactive elements) to position us as a premier agency for hyper-specific industries like photographers, plumbers, DJs, daycare centers, etc. We have no real clients, so instead we will showcase "Concept Vision" demo sites for each industry.
+
+1. Technology Stack & Technical Requirements
+   - Use Next.js (App Router) with Tailwind CSS for styling.
+   - Use Framer Motion for all animations and micro-interactions.
+   - Use a component-based architecture; build reusable, well-commented components.
+   - Ensure the site is fully responsive (mobile-first) and accessible (WCAG compliant).
+   - All images must be high-quality placeholders from https://images.unsplash.com (use random industry-relevant images) or via a dynamic placeholder service (e.g., https://placehold.co/800x600/1F1F21/F5F5F7?text=Demo+Showcase).
+
+2. Design System & Aesthetic Rules
+   - Color Palette:
+     * Primary Background: #1F1F21 (deep, premium off-black)
+     * Secondary Background (cards, glass panels): #2A2A2D
+     * Primary Text: #F5F5F7 (warm off-white)
+     * Accent (VERY sparingly, only for key interactive elements): #005BB5 (electric blue)
+   - Typography: Use a modern, geometric sans-serif (Inter or Space Grotesk) for headings and a clean, readable font (Inter) for body. Do NOT use pure white (#ffffff) or pure black (#000000) anywhere.
+   - Design Trend Implementation:
+     * "Glassmorphism Evolved": Cards and panels should have a frosted-glass effect (backdrop-blur, semi-transparent backgrounds) with subtle borders.
+     * "Dynamic Bento Grids": Use asymmetrical, modular grid layouts for services and portfolio previews, with hover animations and interactive tiles.
+     * "Interactive Storytelling": Incorporate scroll-triggered fade-ins, parallax layers, and smooth animated transitions between sections.
+   - Atmosphere: The entire site must feel cinematic, immersive, and distinctly "anti-AI-generated." Use intentional asymmetries, hover reveals, and subtle particle effects where appropriate.
+
+3. Mandatory Pages & Their Features
+   A. Homepage (index.tsx)
+      - Hero Section: Full-viewport height with an animated dynamic particle network or abstract 3D visual as background (use pure CSS or particle.js equivalent). Overlay a bold, futuristic tagline (placeholder text: "Crafting Digital Experiences for Every Industry") and a primary CTA button that glows with the electric blue accent on hover.
+      - Social Proof Strip: Immediately below the hero, show a row of 6 fictional but realistic "as seen in" or partner logos (use simple geometric SVG placeholders).
+      - Interactive Industry Map: Instead of a static services grid, build an interactive visual (like a connecting constellation or network graph) where each node represents an industry (Photographers, Plumbers, HVAC, DJs, Hair Salons, Daycares, Bloggers, etc.). On click/hover, a glassmorphism tooltip appears with a mini description and a link to the dedicated industry showcase page. This must be a working React component with Framer Motion interactions.
+      - Stats Counter: A section with animated counters (from 0 to target number) showing placeholder metrics (e.g., "50+ Concept Sites Built," "19 Industries Mapped," "4.9 Avg. Projected Rating"). Implement as a re-usable Counter component with scroll-triggered start.
+
+   B. Industry Showcase Template (e.g., /industries/photographers)
+      - This is a dynamic route or a reusable layout for each industry. The page must contain:
+      - Hero with the industry name, a background image from Unsplash associated with that niche, and a brief placeholder intro.
+      - "The Vision" Section: A glassmorphism card showing a mini case study layout with "The Challenge", "Our Strategy", and "Projected Outcome" (all placeholder text). Use a timeline or step-by-step visual.
+      - Live Demo Preview: Embed a simulated, responsive "website demo" using an iframe or a highly styled image slider. Use a placeholder external URL (like a CodePen or a simple Netlify drop) showing a generic salon/plumber/photographer site, or use a well-crafted static image. Add a glowing border and device frame toggle (desktop/tablet/mobile) using React state.
+      - Tailored Advice & Tools Grid: A bento grid of 3 cards: "Industry SEO Guide", "Conversion Checklist", and "Free Template". These link to placeholder blog posts or download buttons. Add hover animation where the card lifts and reveals a subtle neon glow.
+
+   C. Process Page (how-it-works)
+      - A vertical, scrolling timeline (animated progress line) showing the agency's 4-step "Concept-to-Conversion" process with icon animations. Each step expands on click/hover to reveal more placeholder text.
+
+   D. About Page
+      - A team section with 3 circular placeholder images (using thispersondoesnotexist.com or Unsplash portraits) and quirky bios. Incorporate glassmorphism cards and a "Our Why" statement.
+
+   E. Blog/Resources List Page
+      - A grid of blog cards (with sample titles like "Why Every Plumber Needs a 2026-Ready Website") and placeholder excerpts. Clicking leads to a blog post template that uses a consistent design.
+
+   F. Contact Page
+      - A minimalist form with glassmorphism styling. Fields: Name, Email, Industry Dropdown (list the same industries from the map). Include a "Start Your Project" CTA. All non-functional, just UI.
+
+4. Placeholder Content Strategy
+   - All text must be either lorem ipsum or humorous placeholder content that matches the context (e.g., "We built this incredible daycare site to turn tiny tots into lifelong customers"). Keep it fun but clearly placeholder.
+   - Images: Use appropriate Unsplash source URLs for each industry (e.g., 'https://images.unsplash.com/photo-...' for a hair salon). The agent should find and embed realistic, high-quality images during build.
+   - Data: The industry map nodes and any dynamic content must be defined in a centralized data file (e.g., `data/industries.js`) so they can be easily replaced later.
+
+5. Important Implementation Instructions
+   - First, plan the component tree and data flow. Then build incrementally, page by page, ensuring all animations and interactions are smooth.
+   - Use Framer Motion’s `AnimatePresence` for page transitions.
+   - Apply strict adherence to the color palette and never deviate. Use Tailwind’s custom config to extend colors.
+   - Every interactive element (links, buttons, map nodes) must have a clear hover state using the electric blue accent.
+   - The final site should look like a production-ready, premium agency website despite the placeholder content. Prioritize visual impact and code quality equally.

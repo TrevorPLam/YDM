@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --font-sans: var(--app-font-sans);
+  --font-heading: var(--app-font-heading);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  /* Nexus Digital Palette */
+  /* Background: #1F1F21 -> HSL: 240 3% 13% */
+  --background: 240 3% 13%;
+  /* Foreground: #F5F5F7 -> HSL: 240 9% 96% */
+  --foreground: 240 9% 96%;
+  
+  /* Border: rgba(245,245,247,0.08) -> approximate hex/hsl for solid border if needed */
+  --border: 240 3% 20%;
+  
+  /* Card/Panel: #2A2A2D -> HSL: 240 3% 17% */
+  --card: 240 3% 17%;
+  --card-foreground: 240 9% 96%;
+  --card-border: 240 3% 25%;
+  
+  --popover: 240 3% 17%;
+  --popover-foreground: 240 9% 96%;
+  --popover-border: 240 3% 25%;
+  
+  /* Accent/Primary: #005BB5 -> HSL: 210 100% 35% */
+  --primary: 210 100% 35%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 240 3% 25%;
+  --secondary-foreground: 240 9% 96%;
+  
+  --muted: 240 3% 25%;
+  --muted-foreground: 240 4% 70%;
+  
+  --accent: 210 100% 35%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --input: 240 3% 25%;
+  --ring: 210 100% 35%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-heading: 'Space Grotesk', sans-serif;
+  
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 240 3% 13%;
+  --foreground: 240 9% 96%;
+  --border: 240 3% 20%;
+  --card: 240 3% 17%;
+  --card-foreground: 240 9% 96%;
+  --card-border: 240 3% 25%;
+  --popover: 240 3% 17%;
+  --popover-foreground: 240 9% 96%;
+  --popover-border: 240 3% 25%;
+  --primary: 210 100% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 3% 25%;
+  --secondary-foreground: 240 9% 96%;
+  --muted: 240 3% 25%;
+  --muted-foreground: 240 4% 70%;
+  --accent: 210 100% 35%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 240 3% 25%;
+  --ring: 210 100% 35%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+.glass-card {
+  background: rgba(42,42,45,0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245,245,247,0.08);
+}
+
+.glow-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.glow-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(0, 91, 181, 0.5);
+}
