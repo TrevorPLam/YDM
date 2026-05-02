@@ -1,25 +1,70 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { appConfig, isProduction } from "./lib/config";
+import { shutdownManager } from "./lib/graceful-shutdown";
+import { health } from "./routes/health";
 
-const rawPort = process.env["PORT"];
+const port = appConfig.port;
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
+// Startup sequence
+async function startup() {
+  try {
+    logger.info("🚀 Starting application...");
+    
+    // Log configuration (without sensitive data)
+    logger.info({
+      port,
+      nodeEnv: appConfig.nodeEnv,
+      logLevel: appConfig.logLevel,
+      databaseUrl: appConfig.database.url.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@'), // Hide credentials
+      corsOrigins: appConfig.cors.origins,
+    }, "📋 Configuration loaded");
 
-const port = Number(rawPort);
+    // Start server
+    const server = app.listen(port, (err) => {
+      if (err) {
+        logger.error({ err }, "❌ Error listening on port");
+        process.exit(1);
+      }
 
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
+      logger.info({ port }, "🌐 Server listening");
+      
+      // Mark service as ready
+      health.setReady(true);
+      logger.info("✅ Application ready to serve traffic");
+    });
 
-app.listen(port, (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
+    // Register server with graceful shutdown manager
+    shutdownManager.trackServer(server);
+
+    // Register cleanup handlers (add more as needed)
+    shutdownManager.registerCleanup('logger', async () => {
+      // Flush any pending logs
+      await new Promise(resolve => setTimeout(resolve, 100));
+    });
+
+    // Handle graceful shutdown
+    process.on('SIGTERM', () => {
+      health.setTerminating();
+      shutdownManager.shutdown('SIGTERM');
+    });
+
+    process.on('SIGINT', () => {
+      health.setTerminating();
+      shutdownManager.shutdown('SIGINT');
+    });
+
+    return server;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logger.error({ error: errorMessage }, '💥 Startup failed');
     process.exit(1);
   }
+}
 
-  logger.info({ port }, "Server listening");
+// Start the application
+startup().catch((error) => {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  logger.error({ error: errorMessage }, '💥 Fatal startup error');
+  process.exit(1);
 });

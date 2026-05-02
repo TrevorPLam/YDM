@@ -1,23 +1,24 @@
 import { useRoute } from "wouter";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
+import { Suspense } from "react";
 import { PageTransition } from "@/components/PageTransition";
-import { industries } from "@/data/industries";
-import { ArrowRight, Monitor, Smartphone, Tablet } from "lucide-react";
+import { useIndustry } from "@/hooks/use-industries";
+import { ArrowRight, Monitor, Smartphone, Tablet, Layers } from "lucide-react";
 import { useState } from "react";
 import NotFound from "./not-found";
 import { Button } from "@/components/ui/button";
+import IndustrySkeleton from "@/components/IndustrySkeleton";
+import IndustryErrorBoundary from "@/components/IndustryErrorBoundary";
 
-export default function Industry() {
+function IndustryContent() {
   const [match, params] = useRoute("/industries/:slug");
   const [deviceView, setDeviceView] = useState<"desktop" | "tablet" | "mobile">("desktop");
   
   if (!match || !params?.slug) return <NotFound />;
   
-  const industry = industries.find(i => i.slug === params.slug);
+  const industry = useIndustry(params.slug);
   
-  if (!industry) return <NotFound />;
-
   return (
     <PageTransition>
       {/* Hero */}
@@ -234,5 +235,15 @@ export default function Industry() {
         </div>
       </section>
     </PageTransition>
+  );
+}
+
+export default function Industry() {
+  return (
+    <IndustryErrorBoundary>
+      <Suspense fallback={<IndustrySkeleton />}>
+        <IndustryContent />
+      </Suspense>
+    </IndustryErrorBoundary>
   );
 }

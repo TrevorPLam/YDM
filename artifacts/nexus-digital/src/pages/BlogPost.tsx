@@ -1,19 +1,26 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
-import { blogPosts } from "@/data/posts";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { useBlogPost } from "@/hooks/use-blog";
+import { useBlogPosts } from "@/hooks/use-blog";
 import NotFound from "./not-found";
 import { Clock, ArrowLeft, Twitter, Linkedin, Facebook } from "lucide-react";
+
+// TODO: Add react-helmet-async for SEO metadata
+// import { Helmet } from "react-helmet-async";
 
 export default function BlogPost() {
   const [match, params] = useRoute("/blog/:slug");
   
   if (!match || !params?.slug) return <NotFound />;
   
-  const post = blogPosts.find(p => p.slug === params.slug);
-  if (!post) return <NotFound />;
-
-  const relatedPosts = blogPosts.filter(p => p.slug !== post.slug).slice(0, 3);
+  try {
+    const post = useBlogPost(params.slug);
+    
+    // Get related posts (excluding current post)
+    const { blogPosts: allPosts } = useBlogPosts({ limit: 10 });
+    const relatedPosts = allPosts.filter(p => p.slug !== post.slug).slice(0, 3);
 
   return (
     <PageTransition>
@@ -50,7 +57,7 @@ export default function BlogPost() {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-6 leading-tight">{post.title}</h1>
-            <p className="text-xl text-muted-foreground leading-relaxed">{post.excerpt}</p>
+            <p className="text-xl text-muted-foreground leading-relaxed">{post.metaDescription || post.content.substring(0, 150) + '...'}</p>
           </motion.div>
         </div>
       </section>
@@ -123,16 +130,8 @@ export default function BlogPost() {
                 </div>
               </div>
               
-              <div className="glass-card p-6 rounded-2xl border-white/10 text-center">
-                <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 text-primary">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                </div>
-                <h3 className="text-lg font-heading font-bold mb-2">Subscribe to Nexus</h3>
-                <p className="text-sm text-muted-foreground mb-6">Get cutting-edge digital strategies delivered to your inbox monthly.</p>
-                <div className="space-y-3">
-                  <input type="email" placeholder="Email address" className="w-full bg-background border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary transition-colors" />
-                  <button className="w-full bg-primary hover:bg-primary/90 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">Subscribe</button>
-                </div>
+              <div className="glass-card p-6 rounded-2xl border-white/10">
+                <NewsletterSignup />
               </div>
             </div>
             
@@ -141,4 +140,7 @@ export default function BlogPost() {
       </section>
     </PageTransition>
   );
+  } catch (error) {
+    return <NotFound />;
+  }
 }

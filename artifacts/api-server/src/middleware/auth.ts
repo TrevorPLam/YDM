@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../lib/logger";
+import { authService } from "../services/auth";
 
 /**
  * Simple API key authentication middleware
@@ -50,54 +51,39 @@ export const requireApiKey = (
       return;
     }
 
-    // Get configured API key from environment
-    const configuredApiKey = process.env.ADMIN_API_KEY;
+    // Use AuthService for secure authentication
+    const authResult = authService.authenticate(apiKey);
 
-    // Check if environment variable is configured
-    if (!configuredApiKey) {
-      logger.error({
-        msg: "Authentication configuration error: ADMIN_API_KEY not set",
-        path: req.path,
-        method: req.method,
-      });
-
-      res.status(500).json({
-        error: "Internal server error",
-        details: "Authentication service not properly configured",
-      });
-      return;
-    }
-
-    // Validate API key
-    if (apiKey !== configuredApiKey) {
+    if (!authResult.success) {
       logger.warn({
-        msg: "Authentication failed: Invalid API key",
+        msg: "Authentication failed",
         ip: req.ip,
         userAgent: req.get("User-Agent"),
         path: req.path,
         method: req.method,
+        error: authResult.error,
         apiKeyPrefix: apiKey.substring(0, 8) + "...", // Log prefix for debugging
       });
 
-      res.status(401).json({
-        error: "Unauthorized", 
-        details: "Invalid API key",
+      // Return appropriate status code based on error
+      const statusCode = authResult.error?.includes("not properly configured") ? 500 : 401;
+      
+      res.status(statusCode).json({
+        error: statusCode === 500 ? "Internal server error" : "Unauthorized",
+        details: authResult.error,
       });
       return;
     }
 
     // Authentication successful - attach user info to request
-    req.user = {
-      id: "admin-user",
-      type: "admin",
-    };
+    req.user = authResult.user;
 
     logger.info({
       msg: "Authentication successful",
       ip: req.ip,
       path: req.path,
       method: req.method,
-      userId: req.user.id,
+      userId: req.user?.id,
     });
 
     // Continue to next middleware/route handler
@@ -134,32 +120,34 @@ export const optionalApiKey = (
 ): void => {
   try {
     const apiKey = req.headers["x-api-key"];
-    const configuredApiKey = process.env.ADMIN_API_KEY;
 
-    // If API key is provided and valid, attach user info
-    if (apiKey && typeof apiKey === "string" && configuredApiKey && apiKey === configuredApiKey) {
-      req.user = {
-        id: "admin-user", 
-        type: "admin",
-      };
+    // If API key is provided, try to authenticate
+    if (apiKey && typeof apiKey === "string") {
+      const authResult = authService.authenticate(apiKey);
 
-      logger.info({
-        msg: "Optional authentication successful",
-        ip: req.ip,
-        path: req.path,
-        method: req.method,
-        userId: req.user.id,
-      });
-    } else if (apiKey) {
-      // API key provided but invalid - log warning but don't block
-      logger.warn({
-        msg: "Optional authentication failed: Invalid API key (not blocking)",
-        ip: req.ip,
-        userAgent: req.get("User-Agent"),
-        path: req.path,
-        method: req.method,
-        apiKeyPrefix: typeof apiKey === "string" ? apiKey.substring(0, 8) + "..." : "invalid",
-      });
+      if (authResult.success && authResult.user) {
+        // Authentication successful - attach user info
+        req.user = authResult.user;
+
+        logger.info({
+          msg: "Optional authentication successful",
+          ip: req.ip,
+          path: req.path,
+          method: req.method,
+          userId: req.user.id,
+        });
+      } else {
+        // API key provided but invalid - log warning but don't block
+        logger.warn({
+          msg: "Optional authentication failed: Invalid API key (not blocking)",
+          ip: req.ip,
+          userAgent: req.get("User-Agent"),
+          path: req.path,
+          method: req.method,
+          error: authResult.error,
+          apiKeyPrefix: apiKey.substring(0, 8) + "...",
+        });
+      }
     }
 
     // Continue regardless of authentication status

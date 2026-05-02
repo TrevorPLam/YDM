@@ -1,11 +1,12 @@
 import { Link } from "wouter";
 import { Facebook, Twitter, Instagram, Linkedin, Github } from "lucide-react";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export function Footer() {
   return (
     <footer className="border-t border-white/5 bg-background pt-16 pb-8">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-6 group inline-flex">
               <div className="w-8 h-8 bg-primary rounded-sm rotate-45 group-hover:rotate-90 transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]" />
@@ -48,6 +49,16 @@ export function Footer() {
               <li><Link href="/industries/fitness-studios" className="text-muted-foreground hover:text-primary transition-colors">Fitness</Link></li>
               <li><Link href="/industries" className="text-primary hover:text-primary/80 transition-colors text-sm font-medium mt-2">View All 12 Industries &rarr;</Link></li>
             </ul>
+          </div>
+          
+          <div className="glass-card p-6 rounded-2xl border-white/10">
+            <NewsletterSignup 
+              title="Stay Updated"
+              description="Get the latest digital insights delivered monthly."
+              buttonText="Subscribe"
+              compact={true}
+              showIcon={false}
+            />
           </div>
         </div>
         

@@ -2,6 +2,7 @@ import { Router, type Request, Response, NextFunction } from "express";
 import { requireApiKey, type AuthenticatedRequest } from "../middleware/auth";
 import { blogService } from "../services/blog";
 import { validateRequest } from "../middlewares/validation";
+import { authRateLimit } from "../middlewares/rateLimit";
 import { logger } from "../lib/logger";
 
 /**
@@ -108,6 +109,7 @@ router.get(
  */
 router.post(
   "/posts",
+  authRateLimit,
   requireApiKey,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
@@ -253,6 +255,7 @@ router.get(
  */
 router.put(
   "/posts/:slug",
+  authRateLimit,
   requireApiKey,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
@@ -329,6 +332,7 @@ router.put(
  */
 router.delete(
   "/posts/:slug",
+  authRateLimit,
   requireApiKey,
   async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {

@@ -148,3 +148,13 @@ export const newsletterRateLimit = createRateLimit({
   maxRequests: 10, // 10 subscriptions per 15 minutes per IP
   message: "Too many newsletter subscription attempts. Please wait before trying again."
 });
+
+/**
+ * Rate limiter specifically for authentication endpoints
+ * Very restrictive to prevent brute force attacks on API keys
+ */
+export const authRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  maxRequests: 20, // 20 auth attempts per 15 minutes per IP
+  message: "Too many authentication attempts. Please wait before trying again."
+});

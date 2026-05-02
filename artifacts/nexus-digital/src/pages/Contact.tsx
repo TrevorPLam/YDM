@@ -2,8 +2,11 @@ import { motion } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
 import { industries } from "@/data/industries";
 import { Button } from "@/components/ui/button";
+import { useContactForm } from "@/hooks/use-contact-form";
 
 export default function Contact() {
+  const { form, handleSubmit, isLoading, isSuccess, reset } = useContactForm();
+
   return (
     <PageTransition>
       <section className="min-h-screen pt-32 pb-20 relative flex items-center justify-center overflow-hidden">
@@ -60,11 +63,12 @@ export default function Contact() {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
                 
-                <form className="relative z-10 space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <form onSubmit={handleSubmit} className="relative z-10 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground pl-1">Name</label>
                       <input 
+                        {...form.register("fullName", { required: true })}
                         type="text" 
                         placeholder="Jane Doe" 
                         className="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
@@ -73,6 +77,7 @@ export default function Contact() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground pl-1">Email</label>
                       <input 
+                        {...form.register("email", { required: true })}
                         type="email" 
                         placeholder="jane@example.com" 
                         className="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all"
@@ -84,12 +89,13 @@ export default function Contact() {
                     <label className="text-sm font-medium text-muted-foreground pl-1">Industry</label>
                     <div className="relative">
                       <select 
+                        {...form.register("company")}
                         className="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-foreground appearance-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all cursor-pointer"
                         defaultValue=""
                       >
                         <option value="" disabled>Select your sector...</option>
                         {industries.map(ind => (
-                          <option key={ind.slug} value={ind.slug}>{ind.name}</option>
+                          <option key={ind.slug} value={ind.name}>{ind.name}</option>
                         ))}
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
@@ -101,6 +107,7 @@ export default function Contact() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground pl-1">Project Details</label>
                     <textarea 
+                      {...form.register("message", { required: true })}
                       placeholder="Tell us about the challenge you're trying to solve..." 
                       rows={5}
                       className="w-full bg-background border border-white/10 rounded-lg px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all resize-none"
@@ -109,11 +116,38 @@ export default function Contact() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(0,91,181,0.4)] hover:shadow-[0_0_30px_rgba(0,91,181,0.6)] transition-all group"
+                    disabled={isLoading}
+                    className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(0,91,181,0.4)] hover:shadow-[0_0_30px_rgba(0,91,181,0.6)] transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Start Your Project
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    {isLoading ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                        Sending...
+                      </>
+                    ) : isSuccess ? (
+                      <>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Message Sent!
+                      </>
+                    ) : (
+                      <>
+                        Start Your Project
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2 group-hover:translate-x-1 transition-transform"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                      </>
+                    )}
                   </Button>
+                  
+                  {isSuccess && (
+                    <div className="text-center">
+                      <button
+                        type="button"
+                        onClick={reset}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+                      >
+                        Send another message
+                      </button>
+                    </div>
+                  )}
                 </form>
               </div>
             </motion.div>

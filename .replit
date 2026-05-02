@@ -6,7 +6,13 @@ deploymentTarget = "autoscale"
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
-env = { "CI" = "true" }
+env = { "CI" = "true", "NODE_ENV" = "production" }
+
+[deployment.healthCheck]
+path = "/api/health"
+intervalSeconds = 30
+timeoutSeconds = 10
+maxAttempts = 3
 
 [workflows]
 runButton = "Project"
