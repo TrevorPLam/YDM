@@ -58,3 +58,413 @@ export const SubmitContactBody = zod.object({
     .optional()
     .describe("Phone number (optional)"),
 });
+
+/**
+ * Subscribe an email address to the newsletter with idempotent duplicate prevention
+ * @summary Subscribe to newsletter
+ */
+export const subscribeNewsletterBodyEmailMax = 320;
+
+export const subscribeNewsletterBodyFirstNameMax = 100;
+
+export const subscribeNewsletterBodyLastNameMax = 100;
+
+export const subscribeNewsletterBodySourceMax = 50;
+
+export const SubscribeNewsletterBody = zod.object({
+  email: zod
+    .string()
+    .email()
+    .max(subscribeNewsletterBodyEmailMax)
+    .describe("Email address for newsletter subscription"),
+  firstName: zod
+    .string()
+    .max(subscribeNewsletterBodyFirstNameMax)
+    .optional()
+    .describe("First name (optional)"),
+  lastName: zod
+    .string()
+    .max(subscribeNewsletterBodyLastNameMax)
+    .optional()
+    .describe("Last name (optional)"),
+  source: zod
+    .string()
+    .max(subscribeNewsletterBodySourceMax)
+    .optional()
+    .describe("Subscription source (e.g., 'footer', 'blog', 'popup')"),
+});
+
+export const SubscribeNewsletterResponse = zod.object({
+  id: zod.number().describe("Subscription ID"),
+  publicId: zod.string().describe("Public-facing subscription ID"),
+  email: zod.string().describe("Email address"),
+  firstName: zod.string().optional().describe("First name"),
+  lastName: zod.string().optional().describe("Last name"),
+  source: zod.string().describe("Subscription source"),
+  isActive: zod.boolean().describe("Subscription active status"),
+  createdAt: zod.coerce.date().describe("Creation timestamp"),
+});
+
+/**
+ * Retrieve a paginated list of industries with optional search functionality
+ * @summary List industries with pagination and search
+ */
+export const listIndustriesQueryPageDefault = 0;
+export const listIndustriesQueryPageMin = 0;
+
+export const listIndustriesQueryLimitDefault = 10;
+export const listIndustriesQueryLimitMax = 100;
+
+export const listIndustriesQuerySearchMax = 100;
+
+export const listIndustriesQueryOrderByDefault = `name`;
+
+export const ListIndustriesQueryParams = zod.object({
+  page: zod.coerce
+    .number()
+    .min(listIndustriesQueryPageMin)
+    .default(listIndustriesQueryPageDefault)
+    .describe("Page number for pagination (0-based)"),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(listIndustriesQueryLimitMax)
+    .default(listIndustriesQueryLimitDefault)
+    .describe("Number of items per page"),
+  search: zod.coerce
+    .string()
+    .min(1)
+    .max(listIndustriesQuerySearchMax)
+    .optional()
+    .describe("Search term to filter industries by name or description"),
+  orderBy: zod
+    .enum(["name", "created_at"])
+    .default(listIndustriesQueryOrderByDefault)
+    .describe("Sort order (name, created_at)"),
+});
+
+export const ListIndustriesResponse = zod.object({
+  industries: zod
+    .array(
+      zod.object({
+        id: zod.number().describe("Industry ID"),
+        publicId: zod.string().describe("Public-facing industry ID"),
+        name: zod.string().describe("Industry name"),
+        slug: zod.string().describe("URL-friendly slug"),
+        description: zod.string().optional().describe("Industry description"),
+        createdAt: zod.coerce.date().describe("Creation timestamp"),
+        updatedAt: zod.coerce.date().describe("Last update timestamp"),
+      }),
+    )
+    .describe("List of industries"),
+  pagination: zod.object({
+    page: zod.number().describe("Current page number"),
+    limit: zod.number().describe("Items per page"),
+    total: zod.number().describe("Total number of industries"),
+    totalPages: zod.number().describe("Total number of pages"),
+    hasNext: zod.boolean().describe("Whether there is a next page"),
+    hasPrev: zod.boolean().describe("Whether there is a previous page"),
+  }),
+});
+
+/**
+ * Retrieve a single industry by its slug
+ * @summary Get industry by slug
+ */
+export const getIndustryBySlugPathSlugMax = 100;
+
+export const GetIndustryBySlugParams = zod.object({
+  slug: zod.coerce
+    .string()
+    .min(1)
+    .max(getIndustryBySlugPathSlugMax)
+    .describe("Industry slug"),
+});
+
+export const GetIndustryBySlugResponse = zod.object({
+  id: zod.number().describe("Industry ID"),
+  publicId: zod.string().describe("Public-facing industry ID"),
+  name: zod.string().describe("Industry name"),
+  slug: zod.string().describe("URL-friendly slug"),
+  description: zod.string().optional().describe("Industry description"),
+  createdAt: zod.coerce.date().describe("Creation timestamp"),
+  updatedAt: zod.coerce.date().describe("Last update timestamp"),
+});
+
+/**
+ * Retrieve a paginated list of published blog posts with optional search functionality
+ * @summary List blog posts with pagination and search
+ */
+export const listBlogPostsQueryPageDefault = 0;
+export const listBlogPostsQueryPageMin = 0;
+
+export const listBlogPostsQueryLimitDefault = 10;
+export const listBlogPostsQueryLimitMax = 100;
+
+export const listBlogPostsQuerySearchMax = 100;
+
+export const listBlogPostsQueryIndustrySlugMax = 100;
+
+export const listBlogPostsQueryOrderByDefault = `published_at`;
+
+export const ListBlogPostsQueryParams = zod.object({
+  page: zod.coerce
+    .number()
+    .min(listBlogPostsQueryPageMin)
+    .default(listBlogPostsQueryPageDefault)
+    .describe("Page number for pagination (0-based)"),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(listBlogPostsQueryLimitMax)
+    .default(listBlogPostsQueryLimitDefault)
+    .describe("Number of items per page"),
+  search: zod.coerce
+    .string()
+    .min(1)
+    .max(listBlogPostsQuerySearchMax)
+    .optional()
+    .describe("Search term to filter posts by title or content"),
+  industrySlug: zod.coerce
+    .string()
+    .min(1)
+    .max(listBlogPostsQueryIndustrySlugMax)
+    .optional()
+    .describe("Filter posts by industry slug"),
+  featured: zod.coerce
+    .boolean()
+    .optional()
+    .describe("Filter to featured posts only"),
+  orderBy: zod
+    .enum(["published_at", "created_at", "title"])
+    .default(listBlogPostsQueryOrderByDefault)
+    .describe("Sort order (published_at, created_at, title)"),
+});
+
+export const ListBlogPostsResponse = zod.object({
+  blogPosts: zod
+    .array(
+      zod.object({
+        id: zod.number().describe("Blog post ID"),
+        publicId: zod.string().describe("Public-facing blog post ID"),
+        title: zod.string().describe("Blog post title"),
+        slug: zod.string().describe("URL-friendly slug"),
+        content: zod.string().describe("Blog post content"),
+        metaDescription: zod
+          .string()
+          .optional()
+          .describe("SEO meta description"),
+        status: zod.string().describe("Publication status"),
+        isFeatured: zod.boolean().describe("Whether this is a featured post"),
+        publishedAt: zod.coerce
+          .date()
+          .optional()
+          .describe("Publication timestamp"),
+        authorId: zod.number().describe("Author user ID"),
+        industryId: zod.number().describe("Industry ID"),
+        industry: zod
+          .object({
+            id: zod.number().optional().describe("Industry ID"),
+            name: zod.string().optional().describe("Industry name"),
+            slug: zod.string().optional().describe("Industry slug"),
+          })
+          .optional()
+          .describe("Industry information"),
+        createdAt: zod.coerce.date().describe("Creation timestamp"),
+        updatedAt: zod.coerce.date().describe("Last update timestamp"),
+      }),
+    )
+    .describe("List of blog posts"),
+  pagination: zod.object({
+    page: zod.number().describe("Current page number"),
+    limit: zod.number().describe("Items per page"),
+    total: zod.number().describe("Total number of blog posts"),
+    totalPages: zod.number().describe("Total number of pages"),
+    hasNext: zod.boolean().describe("Whether there is a next page"),
+    hasPrev: zod.boolean().describe("Whether there is a previous page"),
+  }),
+});
+
+/**
+ * Create a new blog post (requires authentication)
+ * @summary Create a new blog post
+ */
+export const createBlogPostBodyTitleMin = 5;
+export const createBlogPostBodyTitleMax = 255;
+
+export const createBlogPostBodySlugMax = 255;
+
+export const createBlogPostBodySlugRegExp = new RegExp("^[a-z0-9-]+$");
+export const createBlogPostBodyContentMin = 50;
+
+export const createBlogPostBodyMetaDescriptionMax = 160;
+
+export const createBlogPostBodyIsFeaturedDefault = false;
+export const createBlogPostBodyStatusDefault = `draft`;
+
+export const CreateBlogPostBody = zod.object({
+  title: zod
+    .string()
+    .min(createBlogPostBodyTitleMin)
+    .max(createBlogPostBodyTitleMax)
+    .describe("Blog post title"),
+  slug: zod
+    .string()
+    .min(1)
+    .max(createBlogPostBodySlugMax)
+    .regex(createBlogPostBodySlugRegExp)
+    .optional()
+    .describe("URL-friendly slug (auto-generated if not provided)"),
+  content: zod
+    .string()
+    .min(createBlogPostBodyContentMin)
+    .describe("Blog post content (rich text)"),
+  metaDescription: zod
+    .string()
+    .max(createBlogPostBodyMetaDescriptionMax)
+    .optional()
+    .describe("SEO meta description (optional)"),
+  industryId: zod.number().describe("Industry ID the blog post belongs to"),
+  isFeatured: zod
+    .boolean()
+    .default(createBlogPostBodyIsFeaturedDefault)
+    .describe("Whether this is a featured post"),
+  status: zod
+    .enum(["draft", "published"])
+    .default(createBlogPostBodyStatusDefault)
+    .describe("Publication status"),
+});
+
+/**
+ * Retrieve a single published blog post by its slug
+ * @summary Get a blog post by slug
+ */
+export const getBlogPostBySlugPathSlugMax = 255;
+
+export const GetBlogPostBySlugParams = zod.object({
+  slug: zod.coerce
+    .string()
+    .min(1)
+    .max(getBlogPostBySlugPathSlugMax)
+    .describe("Blog post slug"),
+});
+
+export const GetBlogPostBySlugResponse = zod.object({
+  id: zod.number().describe("Blog post ID"),
+  publicId: zod.string().describe("Public-facing blog post ID"),
+  title: zod.string().describe("Blog post title"),
+  slug: zod.string().describe("URL-friendly slug"),
+  content: zod.string().describe("Blog post content"),
+  metaDescription: zod.string().optional().describe("SEO meta description"),
+  status: zod.string().describe("Publication status"),
+  isFeatured: zod.boolean().describe("Whether this is a featured post"),
+  publishedAt: zod.coerce.date().optional().describe("Publication timestamp"),
+  authorId: zod.number().describe("Author user ID"),
+  industryId: zod.number().describe("Industry ID"),
+  industry: zod
+    .object({
+      id: zod.number().optional().describe("Industry ID"),
+      name: zod.string().optional().describe("Industry name"),
+      slug: zod.string().optional().describe("Industry slug"),
+    })
+    .optional()
+    .describe("Industry information"),
+  createdAt: zod.coerce.date().describe("Creation timestamp"),
+  updatedAt: zod.coerce.date().describe("Last update timestamp"),
+});
+
+/**
+ * Update an existing blog post (requires authentication)
+ * @summary Update a blog post
+ */
+export const updateBlogPostPathSlugMax = 255;
+
+export const UpdateBlogPostParams = zod.object({
+  slug: zod.coerce
+    .string()
+    .min(1)
+    .max(updateBlogPostPathSlugMax)
+    .describe("Blog post slug"),
+});
+
+export const updateBlogPostBodyTitleMin = 5;
+export const updateBlogPostBodyTitleMax = 255;
+
+export const updateBlogPostBodySlugMax = 255;
+
+export const updateBlogPostBodySlugRegExp = new RegExp("^[a-z0-9-]+$");
+export const updateBlogPostBodyContentMin = 50;
+
+export const updateBlogPostBodyMetaDescriptionMax = 160;
+
+export const UpdateBlogPostBody = zod.object({
+  title: zod
+    .string()
+    .min(updateBlogPostBodyTitleMin)
+    .max(updateBlogPostBodyTitleMax)
+    .optional()
+    .describe("Blog post title"),
+  slug: zod
+    .string()
+    .min(1)
+    .max(updateBlogPostBodySlugMax)
+    .regex(updateBlogPostBodySlugRegExp)
+    .optional()
+    .describe("URL-friendly slug"),
+  content: zod
+    .string()
+    .min(updateBlogPostBodyContentMin)
+    .optional()
+    .describe("Blog post content (rich text)"),
+  metaDescription: zod
+    .string()
+    .max(updateBlogPostBodyMetaDescriptionMax)
+    .optional()
+    .describe("SEO meta description (optional)"),
+  isFeatured: zod
+    .boolean()
+    .optional()
+    .describe("Whether this is a featured post"),
+  status: zod
+    .enum(["draft", "published", "archived"])
+    .optional()
+    .describe("Publication status"),
+});
+
+export const UpdateBlogPostResponse = zod.object({
+  id: zod.number().describe("Blog post ID"),
+  publicId: zod.string().describe("Public-facing blog post ID"),
+  title: zod.string().describe("Blog post title"),
+  slug: zod.string().describe("URL-friendly slug"),
+  content: zod.string().describe("Blog post content"),
+  metaDescription: zod.string().optional().describe("SEO meta description"),
+  status: zod.string().describe("Publication status"),
+  isFeatured: zod.boolean().describe("Whether this is a featured post"),
+  publishedAt: zod.coerce.date().optional().describe("Publication timestamp"),
+  authorId: zod.number().describe("Author user ID"),
+  industryId: zod.number().describe("Industry ID"),
+  industry: zod
+    .object({
+      id: zod.number().optional().describe("Industry ID"),
+      name: zod.string().optional().describe("Industry name"),
+      slug: zod.string().optional().describe("Industry slug"),
+    })
+    .optional()
+    .describe("Industry information"),
+  createdAt: zod.coerce.date().describe("Creation timestamp"),
+  updatedAt: zod.coerce.date().describe("Last update timestamp"),
+});
+
+/**
+ * Soft delete a blog post by setting status to archived (requires authentication)
+ * @summary Delete a blog post
+ */
+export const deleteBlogPostPathSlugMax = 255;
+
+export const DeleteBlogPostParams = zod.object({
+  slug: zod.coerce
+    .string()
+    .min(1)
+    .max(deleteBlogPostPathSlugMax)
+    .describe("Blog post slug"),
+});

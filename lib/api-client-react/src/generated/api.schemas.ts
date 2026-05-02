@@ -62,6 +62,48 @@ export interface ContactResponse {
   createdAt: string;
 }
 
+export interface NewsletterSubscription {
+  /**
+   * Email address for newsletter subscription
+   * @maxLength 320
+   */
+  email: string;
+  /**
+   * First name (optional)
+   * @maxLength 100
+   */
+  firstName?: string;
+  /**
+   * Last name (optional)
+   * @maxLength 100
+   */
+  lastName?: string;
+  /**
+   * Subscription source (e.g., 'footer', 'blog', 'popup')
+   * @maxLength 50
+   */
+  source?: string;
+}
+
+export interface NewsletterResponse {
+  /** Subscription ID */
+  id: number;
+  /** Public-facing subscription ID */
+  publicId: string;
+  /** Email address */
+  email: string;
+  /** First name */
+  firstName?: string;
+  /** Last name */
+  lastName?: string;
+  /** Subscription source */
+  source: string;
+  /** Subscription active status */
+  isActive: boolean;
+  /** Creation timestamp */
+  createdAt: string;
+}
+
 export type ErrorDetailsItem = {
   /** Field with error */
   field?: string;
@@ -75,3 +117,265 @@ export interface Error {
   /** Detailed validation errors */
   details?: ErrorDetailsItem[];
 }
+
+export interface IndustryResponse {
+  /** Industry ID */
+  id: number;
+  /** Public-facing industry ID */
+  publicId: string;
+  /** Industry name */
+  name: string;
+  /** URL-friendly slug */
+  slug: string;
+  /** Industry description */
+  description?: string;
+  /** Creation timestamp */
+  createdAt: string;
+  /** Last update timestamp */
+  updatedAt: string;
+}
+
+export type IndustryListResponsePagination = {
+  /** Current page number */
+  page: number;
+  /** Items per page */
+  limit: number;
+  /** Total number of industries */
+  total: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Whether there is a next page */
+  hasNext: boolean;
+  /** Whether there is a previous page */
+  hasPrev: boolean;
+};
+
+export interface IndustryListResponse {
+  /** List of industries */
+  industries: IndustryResponse[];
+  pagination: IndustryListResponsePagination;
+}
+
+/**
+ * Publication status
+ */
+export type CreateBlogPostRequestStatus =
+  (typeof CreateBlogPostRequestStatus)[keyof typeof CreateBlogPostRequestStatus];
+
+export const CreateBlogPostRequestStatus = {
+  draft: "draft",
+  published: "published",
+} as const;
+
+export interface CreateBlogPostRequest {
+  /**
+   * Blog post title
+   * @minLength 5
+   * @maxLength 255
+   */
+  title: string;
+  /**
+   * URL-friendly slug (auto-generated if not provided)
+   * @minLength 1
+   * @maxLength 255
+   * @pattern ^[a-z0-9-]+$
+   */
+  slug?: string;
+  /**
+   * Blog post content (rich text)
+   * @minLength 50
+   */
+  content: string;
+  /**
+   * SEO meta description (optional)
+   * @maxLength 160
+   */
+  metaDescription?: string;
+  /** Industry ID the blog post belongs to */
+  industryId: number;
+  /** Whether this is a featured post */
+  isFeatured?: boolean;
+  /** Publication status */
+  status?: CreateBlogPostRequestStatus;
+}
+
+/**
+ * Publication status
+ */
+export type UpdateBlogPostRequestStatus =
+  (typeof UpdateBlogPostRequestStatus)[keyof typeof UpdateBlogPostRequestStatus];
+
+export const UpdateBlogPostRequestStatus = {
+  draft: "draft",
+  published: "published",
+  archived: "archived",
+} as const;
+
+export interface UpdateBlogPostRequest {
+  /**
+   * Blog post title
+   * @minLength 5
+   * @maxLength 255
+   */
+  title?: string;
+  /**
+   * URL-friendly slug
+   * @minLength 1
+   * @maxLength 255
+   * @pattern ^[a-z0-9-]+$
+   */
+  slug?: string;
+  /**
+   * Blog post content (rich text)
+   * @minLength 50
+   */
+  content?: string;
+  /**
+   * SEO meta description (optional)
+   * @maxLength 160
+   */
+  metaDescription?: string;
+  /** Whether this is a featured post */
+  isFeatured?: boolean;
+  /** Publication status */
+  status?: UpdateBlogPostRequestStatus;
+}
+
+/**
+ * Industry information
+ */
+export type BlogPostResponseIndustry = {
+  /** Industry ID */
+  id?: number;
+  /** Industry name */
+  name?: string;
+  /** Industry slug */
+  slug?: string;
+};
+
+export interface BlogPostResponse {
+  /** Blog post ID */
+  id: number;
+  /** Public-facing blog post ID */
+  publicId: string;
+  /** Blog post title */
+  title: string;
+  /** URL-friendly slug */
+  slug: string;
+  /** Blog post content */
+  content: string;
+  /** SEO meta description */
+  metaDescription?: string;
+  /** Publication status */
+  status: string;
+  /** Whether this is a featured post */
+  isFeatured: boolean;
+  /** Publication timestamp */
+  publishedAt?: string;
+  /** Author user ID */
+  authorId: number;
+  /** Industry ID */
+  industryId: number;
+  /** Industry information */
+  industry?: BlogPostResponseIndustry;
+  /** Creation timestamp */
+  createdAt: string;
+  /** Last update timestamp */
+  updatedAt: string;
+}
+
+export type BlogPostListResponsePagination = {
+  /** Current page number */
+  page: number;
+  /** Items per page */
+  limit: number;
+  /** Total number of blog posts */
+  total: number;
+  /** Total number of pages */
+  totalPages: number;
+  /** Whether there is a next page */
+  hasNext: boolean;
+  /** Whether there is a previous page */
+  hasPrev: boolean;
+};
+
+export interface BlogPostListResponse {
+  /** List of blog posts */
+  blogPosts: BlogPostResponse[];
+  pagination: BlogPostListResponsePagination;
+}
+
+export type ListIndustriesParams = {
+  /**
+   * Page number for pagination (0-based)
+   * @minimum 0
+   */
+  page?: number;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  limit?: number;
+  /**
+   * Search term to filter industries by name or description
+   * @minLength 1
+   * @maxLength 100
+   */
+  search?: string;
+  /**
+   * Sort order (name, created_at)
+   */
+  orderBy?: ListIndustriesOrderBy;
+};
+
+export type ListIndustriesOrderBy =
+  (typeof ListIndustriesOrderBy)[keyof typeof ListIndustriesOrderBy];
+
+export const ListIndustriesOrderBy = {
+  name: "name",
+  created_at: "created_at",
+} as const;
+
+export type ListBlogPostsParams = {
+  /**
+   * Page number for pagination (0-based)
+   * @minimum 0
+   */
+  page?: number;
+  /**
+   * Number of items per page
+   * @minimum 1
+   * @maximum 100
+   */
+  limit?: number;
+  /**
+   * Search term to filter posts by title or content
+   * @minLength 1
+   * @maxLength 100
+   */
+  search?: string;
+  /**
+   * Filter posts by industry slug
+   * @minLength 1
+   * @maxLength 100
+   */
+  industrySlug?: string;
+  /**
+   * Filter to featured posts only
+   */
+  featured?: boolean;
+  /**
+   * Sort order (published_at, created_at, title)
+   */
+  orderBy?: ListBlogPostsOrderBy;
+};
+
+export type ListBlogPostsOrderBy =
+  (typeof ListBlogPostsOrderBy)[keyof typeof ListBlogPostsOrderBy];
+
+export const ListBlogPostsOrderBy = {
+  published_at: "published_at",
+  created_at: "created_at",
+  title: "title",
+} as const;

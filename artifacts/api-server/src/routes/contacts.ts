@@ -1,5 +1,6 @@
 import { Router, type Request, Response, NextFunction } from "express";
 import { validateRequest } from "../middlewares/validation";
+import { contactRateLimit } from "../middlewares/rateLimit";
 import { contactService } from "../services/contacts";
 import { SubmitContactBody } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
@@ -22,6 +23,7 @@ const router = Router();
  */
 router.post(
   "/",
+  contactRateLimit,
   validateRequest(SubmitContactBody as any),
   async (req: Request, res: Response, next: NextFunction) => {
     try {

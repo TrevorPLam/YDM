@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, text, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, text, index, uniqueIndex, customType } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -7,6 +7,13 @@ const timestamps = {
   createdAt: text('created_at').default('now()').notNull(),
   updatedAt: text('updated_at').default('now()').notNull(),
 };
+
+// PostgreSQL tsvector custom type for full-text search
+const searchVector = customType<{ data: string }>({
+  dataType() {
+    return 'tsvector';
+  },
+});
 
 // Industries table - part of Content Management bounded context
 export const industries = pgTable('industries', {
@@ -25,6 +32,9 @@ export const industries = pgTable('industries', {
   // Detailed description
   description: text('description'),
   
+  // Full-text search vector for name and description
+  searchVector: searchVector('search_vector'),
+  
   // Timestamps
   ...timestamps,
 }, (table) => [
@@ -36,6 +46,9 @@ export const industries = pgTable('industries', {
   
   // Index for public ID lookups
   index('industries_public_id_idx').on(table.publicId),
+  
+  // GIN index for full-text search
+  index('industries_search_vector_idx').using('gin', table.searchVector),
 ]);
 
 // Zod schemas for validation

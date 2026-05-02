@@ -12,6 +12,12 @@ tags:
     description: Health operations
   - name: contacts
     description: Contact form operations
+  - name: newsletter
+    description: Newsletter subscription operations
+  - name: industries
+    description: Industry data operations
+  - name: blog
+    description: Blog management operations
 paths:
   /healthz:
     get:
@@ -47,6 +53,361 @@ paths:
                 $ref: "#/components/schemas/ContactResponse"
         "400":
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /newsletter:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe to newsletter
+      description: Subscribe an email address to the newsletter with idempotent duplicate prevention
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterSubscription"
+      responses:
+        "201":
+          description: Subscription created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterResponse"
+        "200":
+          description: Email already subscribed (idempotent response)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /industries:
+    get:
+      operationId: listIndustries
+      tags: [industries]
+      summary: List industries with pagination and search
+      description: Retrieve a paginated list of industries with optional search functionality
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (0-based)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: search
+          in: query
+          description: Search term to filter industries by name or description
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+        - name: orderBy
+          in: query
+          description: Sort order (name, created_at)
+          schema:
+            type: string
+            enum: [name, created_at]
+            default: name
+      responses:
+        "200":
+          description: Industries retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndustryListResponse"
+        "400":
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /industries/{slug}:
+    get:
+      operationId: getIndustryBySlug
+      tags: [industries]
+      summary: Get industry by slug
+      description: Retrieve a single industry by its slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Industry slug
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        "200":
+          description: Industry retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndustryResponse"
+        "404":
+          description: Industry not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /blog/posts:
+    get:
+      operationId: listBlogPosts
+      tags: [blog]
+      summary: List blog posts with pagination and search
+      description: Retrieve a paginated list of published blog posts with optional search functionality
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (0-based)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: search
+          in: query
+          description: Search term to filter posts by title or content
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+        - name: industrySlug
+          in: query
+          description: Filter posts by industry slug
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+        - name: featured
+          in: query
+          description: Filter to featured posts only
+          schema:
+            type: boolean
+        - name: orderBy
+          in: query
+          description: Sort order (published_at, created_at, title)
+          schema:
+            type: string
+            enum: [published_at, created_at, title]
+            default: published_at
+      responses:
+        "200":
+          description: Blog posts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPostListResponse"
+        "400":
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createBlogPost
+      tags: [blog]
+      summary: Create a new blog post
+      description: Create a new blog post (requires authentication)
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBlogPostRequest"
+      responses:
+        "201":
+          description: Blog post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPostResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /blog/posts/{slug}:
+    get:
+      operationId: getBlogPostBySlug
+      tags: [blog]
+      summary: Get a blog post by slug
+      description: Retrieve a single published blog post by its slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Blog post slug
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+      responses:
+        "200":
+          description: Blog post retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPostResponse"
+        "404":
+          description: Blog post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateBlogPost
+      tags: [blog]
+      summary: Update a blog post
+      description: Update an existing blog post (requires authentication)
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Blog post slug
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBlogPostRequest"
+      responses:
+        "200":
+          description: Blog post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPostResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Blog post not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      operationId: deleteBlogPost
+      tags: [blog]
+      summary: Delete a blog post
+      description: Soft delete a blog post by setting status to archived (requires authentication)
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          description: Blog post slug
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+      responses:
+        "204":
+          description: Blog post deleted successfully
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Blog post not found
           content:
             application/json:
               schema:
@@ -139,6 +500,63 @@ components:
         - source
         - status
         - createdAt
+    NewsletterSubscription:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+          description: Email address for newsletter subscription
+        firstName:
+          type: string
+          maxLength: 100
+          description: First name (optional)
+        lastName:
+          type: string
+          maxLength: 100
+          description: Last name (optional)
+        source:
+          type: string
+          maxLength: 50
+          description: Subscription source (e.g., 'footer', 'blog', 'popup')
+      required:
+        - email
+    NewsletterResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Subscription ID
+        publicId:
+          type: string
+          description: Public-facing subscription ID
+        email:
+          type: string
+          description: Email address
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+        source:
+          type: string
+          description: Subscription source
+        isActive:
+          type: boolean
+          description: Subscription active status
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+      required:
+        - id
+        - publicId
+        - email
+        - source
+        - isActive
+        - createdAt
     Error:
       type: object
       properties:
@@ -159,4 +577,258 @@ components:
           description: Detailed validation errors
       required:
         - error
+    IndustryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Industry ID
+        publicId:
+          type: string
+          description: Public-facing industry ID
+        name:
+          type: string
+          description: Industry name
+        slug:
+          type: string
+          description: URL-friendly slug
+        description:
+          type: string
+          description: Industry description
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - publicId
+        - name
+        - slug
+        - createdAt
+        - updatedAt
+    IndustryListResponse:
+      type: object
+      properties:
+        industries:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndustryResponse"
+          description: List of industries
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              description: Current page number
+            limit:
+              type: integer
+              description: Items per page
+            total:
+              type: integer
+              description: Total number of industries
+            totalPages:
+              type: integer
+              description: Total number of pages
+            hasNext:
+              type: boolean
+              description: Whether there is a next page
+            hasPrev:
+              type: boolean
+              description: Whether there is a previous page
+          required:
+            - page
+            - limit
+            - total
+            - totalPages
+            - hasNext
+            - hasPrev
+      required:
+        - industries
+        - pagination
+    CreateBlogPostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 255
+          description: Blog post title
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[a-z0-9-]+$'
+          description: URL-friendly slug (auto-generated if not provided)
+        content:
+          type: string
+          minLength: 50
+          description: Blog post content (rich text)
+        metaDescription:
+          type: string
+          maxLength: 160
+          description: SEO meta description (optional)
+        industryId:
+          type: integer
+          description: Industry ID the blog post belongs to
+        isFeatured:
+          type: boolean
+          default: false
+          description: Whether this is a featured post
+        status:
+          type: string
+          enum: [draft, published]
+          default: draft
+          description: Publication status
+      required:
+        - title
+        - content
+        - industryId
+    UpdateBlogPostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 255
+          description: Blog post title
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: '^[a-z0-9-]+$'
+          description: URL-friendly slug
+        content:
+          type: string
+          minLength: 50
+          description: Blog post content (rich text)
+        metaDescription:
+          type: string
+          maxLength: 160
+          description: SEO meta description (optional)
+        isFeatured:
+          type: boolean
+          description: Whether this is a featured post
+        status:
+          type: string
+          enum: [draft, published, archived]
+          description: Publication status
+    BlogPostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Blog post ID
+        publicId:
+          type: string
+          description: Public-facing blog post ID
+        title:
+          type: string
+          description: Blog post title
+        slug:
+          type: string
+          description: URL-friendly slug
+        content:
+          type: string
+          description: Blog post content
+        metaDescription:
+          type: string
+          description: SEO meta description
+        status:
+          type: string
+          description: Publication status
+        isFeatured:
+          type: boolean
+          description: Whether this is a featured post
+        publishedAt:
+          type: string
+          format: date-time
+          description: Publication timestamp
+        authorId:
+          type: integer
+          description: Author user ID
+        industryId:
+          type: integer
+          description: Industry ID
+        industry:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: Industry ID
+            name:
+              type: string
+              description: Industry name
+            slug:
+              type: string
+              description: Industry slug
+          description: Industry information
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - publicId
+        - title
+        - slug
+        - content
+        - status
+        - isFeatured
+        - authorId
+        - industryId
+        - createdAt
+        - updatedAt
+    BlogPostListResponse:
+      type: object
+      properties:
+        blogPosts:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlogPostResponse"
+          description: List of blog posts
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              description: Current page number
+            limit:
+              type: integer
+              description: Items per page
+            total:
+              type: integer
+              description: Total number of blog posts
+            totalPages:
+              type: integer
+              description: Total number of pages
+            hasNext:
+              type: boolean
+              description: Whether there is a next page
+            hasPrev:
+              type: boolean
+              description: Whether there is a previous page
+          required:
+            - page
+            - limit
+            - total
+            - totalPages
+            - hasNext
+            - hasPrev
+      required:
+        - blogPosts
+        - pagination
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
 
