@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -5,22 +6,24 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const rawPort = process.env.PORT;
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
 
-if (!rawPort) {
+// For testing, provide default values to avoid errors
+if (!rawPort && !isTest) {
   throw new Error(
     "PORT environment variable is required but was not provided.",
   );
 }
 
-const port = Number(rawPort);
+const port = rawPort ? Number(rawPort) : 3000;
 
-if (Number.isNaN(port) || port <= 0) {
+if (rawPort && (Number.isNaN(port) || port <= 0)) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const basePath = process.env.BASE_PATH;
+const basePath = process.env.BASE_PATH || (isTest ? '/' : undefined);
 
-if (!basePath) {
+if (!basePath && !isTest) {
   throw new Error(
     "BASE_PATH environment variable is required but was not provided.",
   );
@@ -46,6 +49,11 @@ export default defineConfig({
         ]
       : []),
   ],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/__tests__/setup.ts",
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),

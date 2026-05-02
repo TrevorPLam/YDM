@@ -3,21 +3,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useContactForm } from "../use-contact-form";
 
 // Mock the API client
-jest.mock("@workspace/api-client-react", () => ({
-  useSubmitContact: jest.fn(() => ({
-    mutate: jest.fn(),
+vi.mock("@workspace/api-client-react", () => ({
+  useSubmitContact: vi.fn(() => ({
+    mutate: vi.fn(),
     isPending: false,
     isSuccess: false,
     isError: false,
     error: null,
-    reset: jest.fn(),
+    reset: vi.fn(),
   })),
 }));
 
 // Mock the toast hook
-jest.mock("@/hooks/use-toast", () => ({
-  useToast: jest.fn(() => ({
-    toast: jest.fn(),
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: vi.fn(() => ({
+    toast: vi.fn(),
   })),
 }));
 

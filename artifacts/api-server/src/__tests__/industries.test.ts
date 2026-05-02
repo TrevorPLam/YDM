@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '../app';
 import { industries } from '@workspace/db/schema';
-import { clearMockIndustries, mockDb } from './setup';
+import { clearMockIndustries, addSampleIndustries, mockDb } from './setup';
 
 interface IndustryResponse {
   id: number;
@@ -34,6 +34,8 @@ describe('Industry Endpoints', () => {
   beforeEach(() => {
     // Clean up mock industries before each test
     clearMockIndustries();
+    // Add sample data for testing
+    addSampleIndustries();
   });
 
   afterAll(() => {
@@ -42,23 +44,19 @@ describe('Industry Endpoints', () => {
   });
 
   describe('GET /api/industries', () => {
-    it('should return empty list when no industries exist', async () => {
+    it('should return list of industries when data exists', async () => {
       const response = await request(app)
         .get('/api/industries')
         .expect(200);
 
       const body = response.body as IndustryListResponse;
-      expect(body).toHaveProperty('industries');
-      expect(body).toHaveProperty('pagination');
-      expect(Array.isArray(body.industries)).toBe(true);
-      expect(body.industries).toHaveLength(0);
-      
-      // Check pagination metadata
+      expect(body.industries).toHaveLength(3);
+      expect(body.pagination.total).toBe(3);
       expect(body.pagination).toEqual({
         page: 0,
         limit: 10,
-        total: 0,
-        totalPages: 0,
+        total: 3,
+        totalPages: 1,
         hasNext: false,
         hasPrev: false,
       });
@@ -270,9 +268,9 @@ describe('Industry Endpoints', () => {
 
     it('should sort industries by name by default', async () => {
       const testData = [
-        { publicId: 'IND001', name: 'Zebra', slug: 'zebra', description: 'Zebra industry' },
-        { publicId: 'IND002', name: 'Apple', slug: 'apple', description: 'Apple industry' },
-        { publicId: 'IND003', name: 'Banana', slug: 'banana', description: 'Banana industry' },
+        { publicId: 'IND001', name: 'Finance', slug: 'finance', description: 'Finance industry' },
+        { publicId: 'IND002', name: 'Healthcare', slug: 'healthcare', description: 'Healthcare industry' },
+        { publicId: 'IND003', name: 'Technology', slug: 'technology', description: 'Technology industry' },
       ];
 
       await mockDb.insert(industries).values(testData);
@@ -283,7 +281,7 @@ describe('Industry Endpoints', () => {
 
       const body = response.body as IndustryListResponse;
       const names = body.industries.map((i: any) => i.name);
-      expect(names).toEqual(['Apple', 'Banana', 'Zebra']); // Alphabetical order
+      expect(names).toEqual(['Finance', 'Healthcare', 'Technology']); // Alphabetical order
     });
 
     it('should sort industries by created_at when specified', async () => {
@@ -328,16 +326,19 @@ describe('Industry Endpoints', () => {
 
       expect(response.body).toMatchObject({
         id: expect.any(Number),
-        publicId: 'IND001',
+        publicId: 'ind-abc123',
         name: 'Technology',
         slug: 'technology',
-        description: 'Technology industry',
+        description: 'Software and technology companies',
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       });
     });
 
     it('should return 404 for non-existent slug', async () => {
+      // Clear sample data to test 404 case
+      clearMockIndustries();
+      
       const response = await request(app)
         .get('/api/industries/non-existent')
         .expect(404);

@@ -3,9 +3,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useBlogPost, useBlogPosts } from '../use-blog';
 
 // Mock the API client
-jest.mock('@workspace/api-client-react', () => ({
-  useGetBlogPostBySlug: jest.fn(),
-  useListBlogPosts: jest.fn(),
+vi.mock('@workspace/api-client-react', () => ({
+  useGetBlogPostBySlug: vi.fn(),
+  useListBlogPosts: vi.fn(),
 }));
 
 const createWrapper = () => {
@@ -24,7 +24,7 @@ const createWrapper = () => {
 
 describe('useBlog', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('useBlogPost', () => {
@@ -43,7 +43,7 @@ describe('useBlog', () => {
         industry: { id: 1, name: 'Technology', slug: 'technology' },
       };
 
-      const { useGetBlogPostBySlug } = require('@workspace/api-client-react');
+      const { useGetBlogPostBySlug } = vi.mocked(await import('@workspace/api-client-react'));
       useGetBlogPostBySlug.mockReturnValue({
         data: mockPost,
         isLoading: false,
@@ -79,7 +79,7 @@ describe('useBlog', () => {
         industry: null,
       };
 
-      const { useGetBlogPostBySlug } = require('@workspace/api-client-react');
+      const { useGetBlogPostBySlug } = vi.mocked(await import('@workspace/api-client-react'));
       useGetBlogPostBySlug.mockReturnValue({
         data: mockPost,
         isLoading: false,
@@ -124,7 +124,7 @@ describe('useBlog', () => {
         },
       };
 
-      const { useListBlogPosts } = require('@workspace/api-client-react');
+      const { useListBlogPosts } = vi.mocked(await import('@workspace/api-client-react'));
       useListBlogPosts.mockReturnValue({
         data: mockResponse,
         isLoading: false,
@@ -148,7 +148,7 @@ describe('useBlog', () => {
     });
 
     it('should handle search parameters', async () => {
-      const { useListBlogPosts } = require('@workspace/api-client-react');
+      const { useListBlogPosts } = vi.mocked(await import('@workspace/api-client-react'));
       useListBlogPosts.mockReturnValue({
         data: { blogPosts: [], pagination: { page: 0, limit: 10, total: 0, totalPages: 0, hasNext: false, hasPrev: false } },
         isLoading: false,
@@ -176,7 +176,7 @@ describe('useBlog', () => {
     });
 
     it('should use default parameters', async () => {
-      const { useListBlogPosts } = require('@workspace/api-client-react');
+      const { useListBlogPosts } = vi.mocked(await import('@workspace/api-client-react'));
       useListBlogPosts.mockReturnValue({
         data: { blogPosts: [], pagination: { page: 0, limit: 10, total: 0, totalPages: 0, hasNext: false, hasPrev: false } },
         isLoading: false,

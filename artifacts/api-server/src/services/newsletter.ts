@@ -3,6 +3,10 @@ import { newsletterSubscriptions } from "@workspace/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { emailService } from "./email";
 import { logger } from "../lib/logger";
+import {
+  generateNewsletterWelcomeHtml,
+  generateNewsletterWelcomeText,
+} from "../templates";
 import type { SubscribeNewsletterBody } from "@workspace/api-zod";
 import crypto from "crypto";
 
@@ -263,8 +267,8 @@ class NewsletterService {
     try {
       const subject = "Welcome to Our Newsletter!";
       
-      const html = this.generateWelcomeEmailHtml(subscription);
-      const text = this.generateWelcomeEmailText(subscription);
+      const html = generateNewsletterWelcomeHtml(subscription);
+      const text = generateNewsletterWelcomeText(subscription);
 
       await emailService.sendEmail({
         to: subscription.email,
@@ -285,68 +289,7 @@ class NewsletterService {
     }
   }
 
-  /**
-   * Generate HTML welcome email for newsletter subscription
-   */
-  private generateWelcomeEmailHtml(subscription: any): string {
-    const firstName = subscription.firstName || "Subscriber";
-    
-    return `
-      <html>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #0066ff, #00aaff); padding: 30px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Welcome to Our Newsletter! 🎉</h1>
-          </div>
-          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
-            <h2 style="color: #0066ff; margin-top: 0;">Hello ${firstName}!</h2>
-            <p style="color: #333; line-height: 1.6;">Thank you for subscribing to our newsletter. You'll now receive updates about our latest news, insights, and exclusive content.</p>
-            <div style="background: white; padding: 15px; border-radius: 4px; margin-top: 20px; border-left: 4px solid #0066ff;">
-              <p style="margin: 0; color: #666;"><strong>Subscription Details:</strong></p>
-              <ul style="color: #666; padding-left: 20px;">
-                <li><strong>Email:</strong> ${subscription.email}</li>
-                <li><strong>Source:</strong> ${subscription.source}</li>
-                <li><strong>Status:</strong> Active ✅</li>
-              </ul>
-            </div>
-            <p style="color: #666; font-size: 14px; margin-top: 20px;">
-              If you didn't subscribe to this newsletter, please ignore this email or contact us.
-            </p>
-          </div>
-          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-            <p style="color: #999; font-size: 12px; margin: 0;">
-              This email was sent automatically from our newsletter system.
-            </p>
-          </div>
-        </body>
-      </html>
-    `;
-  }
-
-  /**
-   * Generate plain text welcome email for newsletter subscription
-   */
-  private generateWelcomeEmailText(subscription: any): string {
-    const firstName = subscription.firstName || "Subscriber";
-    
-    return `
-Welcome to Our Newsletter!
-
-Hello ${firstName}!
-
-Thank you for subscribing to our newsletter. You'll now receive updates about our latest news, insights, and exclusive content.
-
-Subscription Details:
-Email: ${subscription.email}
-Source: ${subscription.source}
-Status: Active
-
-If you didn't subscribe to this newsletter, please ignore this email or contact us.
-
----
-This email was sent automatically from our newsletter system.
-    `.trim();
-  }
-
+  
   /**
    * Generate a unique public ID for newsletter subscriptions
    * Uses crypto for better randomness than Math.random()

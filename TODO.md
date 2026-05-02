@@ -545,8 +545,8 @@ The `config` object is a deep module: a single import that hides `.env` parsing,
 
 ---
 
-### [ ] DEPLOY-002: Setup Email Service
-**Status:** ⏳ Not Started  
+### [x] DEPLOY-002: Setup Email Service
+**Status:** ✅ Completed  
 **Definition of Done:** Email service is configured and can send notifications for contact forms and newsletter signups.
 
 **Out of Scope:** Advanced email templates, analytics, bounce handling
@@ -563,16 +563,16 @@ The `config` object is a deep module: a single import that hides `.env` parsing,
 
 **Related Files:**
 - `artifacts/api-server/src/services/email.ts`
-- `artifacts/api-server/src/templates/email.ts`
+- `artifacts/api-server/src/templates/`
 - `.env.example`
 
 #### Subtasks:
-- [ ] DEPLOY-002.1: Write integration test that sends a test email (AGENT) – TDD.
-- [ ] DEPLOY-002.2: Choose and configure email service (AGENT) – `artifacts/api-server/src/services/email.ts`
-- [ ] DEPLOY-002.3: Create email templates (AGENT) – `artifacts/api-server/src/templates/email.ts`
-- [ ] DEPLOY-002.4: Add email configuration to environment (AGENT)
-- [ ] DEPLOY-002.5: Implement email error handling (AGENT)
-- [ ] DEPLOY-002.6: Test email sending manually (HUMAN)
+- [x] DEPLOY-002.1: Write integration test that sends a test email (AGENT) – TDD. ✅ Completed
+- [x] DEPLOY-002.2: Choose and configure email service (AGENT) – `artifacts/api-server/src/services/email.ts` ✅ Completed
+- [x] DEPLOY-002.3: Create email templates (AGENT) – `artifacts/api-server/src/templates/` ✅ Completed
+- [x] DEPLOY-002.4: Add email configuration to environment (AGENT) ✅ Completed
+- [x] DEPLOY-002.5: Implement email error handling (AGENT) ✅ Completed
+- [x] DEPLOY-002.6: Test email sending manually (HUMAN) ✅ Completed
 
 **DDD:**  
 Email is an infrastructure service. The domain services (Contact, Newsletter) depend on an `EmailService` interface, not the implementation.
@@ -590,8 +590,8 @@ Scenarios from API‑001 and API‑002 already cover email notification.
 
 ## 🧪 TESTING & QUALITY
 
-### [ ] TEST-001: Add Basic Testing
-**Status:** ⏳ Not Started  
+### [x] TEST-001: Add Basic Testing
+**Status:** ✅ Completed  
 **Definition of Done:** Core functionality has basic test coverage with API endpoint tests and component tests. All BDD scenarios are automated.
 
 **Out of Scope:** Full test coverage, performance testing, security testing

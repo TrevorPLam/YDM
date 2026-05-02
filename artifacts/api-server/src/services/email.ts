@@ -1,5 +1,10 @@
 import nodemailer from "nodemailer";
 import { logger } from "../lib/logger";
+import {
+  generateContactNotificationHtml,
+  generateContactNotificationText,
+  type ContactNotificationData,
+} from "../templates";
 
 /**
  * Email service configuration and functionality
@@ -157,17 +162,11 @@ class EmailService {
   /**
    * Send contact form notification email
    */
-  async sendContactNotification(contactData: {
-    fullName: string;
-    email: string;
-    company?: string;
-    message: string;
-    phone?: string;
-  }): Promise<void> {
+  async sendContactNotification(contactData: ContactNotificationData): Promise<void> {
     const subject = `New Contact Form Submission from ${contactData.fullName}`;
     
-    const html = this.generateContactEmailHtml(contactData);
-    const text = this.generateContactEmailText(contactData);
+    const html = generateContactNotificationHtml(contactData);
+    const text = generateContactNotificationText(contactData);
 
     await this.sendEmail({
       to: this.config.from, // Send to admin email (same as from for now)
@@ -177,56 +176,38 @@ class EmailService {
     });
   }
 
+  
   /**
-   * Generate HTML email for contact form submission
-   */
-  private generateContactEmailHtml(contactData: any): string {
-    return `
-      <html>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #0066ff;">New Contact Form Submission</h2>
-          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px;">
-            <p><strong>Name:</strong> ${contactData.fullName}</p>
-            <p><strong>Email:</strong> ${contactData.email}</p>
-            ${contactData.company ? `<p><strong>Company:</strong> ${contactData.company}</p>` : ''}
-            ${contactData.phone ? `<p><strong>Phone:</strong> ${contactData.phone}</p>` : ''}
-            <p><strong>Message:</strong></p>
-            <div style="background: white; padding: 15px; border-radius: 4px; margin-top: 10px;">
-              ${contactData.message.replace(/\n/g, '<br>')}
-            </div>
-          </div>
-          <p style="margin-top: 20px; color: #666; font-size: 12px;">
-            This email was sent automatically from the contact form.
-          </p>
-        </body>
-      </html>
-    `;
-  }
-
-  /**
-   * Generate plain text email for contact form submission
-   */
-  private generateContactEmailText(contactData: any): string {
-    return `
-New Contact Form Submission
-
-Name: ${contactData.fullName}
-Email: ${contactData.email}
-${contactData.company ? `Company: ${contactData.company}\n` : ''}
-${contactData.phone ? `Phone: ${contactData.phone}\n` : ''}
-Message:
-${contactData.message}
-
----
-This email was sent automatically from the contact form.
-    `.trim();
-  }
-
-  /**
-   * Check if email service is available
+   * Check if email service is available and configured
    */
   isAvailable(): boolean {
     return this.transporter !== null;
+  }
+
+  /**
+   * Check if email service is properly configured with credentials
+   */
+  isConfigured(): boolean {
+    return !!(this.config.auth.user && this.config.auth.pass && this.config.host);
+  }
+
+  /**
+   * Get email service status for health checks
+   */
+  getStatus(): {
+    configured: boolean;
+    available: boolean;
+    host: string;
+    port: number;
+    secure: boolean;
+  } {
+    return {
+      configured: this.isConfigured(),
+      available: this.isAvailable(),
+      host: this.config.host,
+      port: this.config.port,
+      secure: this.config.secure,
+    };
   }
 }
 

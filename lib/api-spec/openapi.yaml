@@ -32,12 +32,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /contacts:
     post:
       operationId: submitContact
       tags: [contacts]
       summary: Submit contact form
-      description: Submit a contact form message and send email notification
+      description: Submit a contact form message and send email notification. Rate limited to 5 requests per minute per IP address.
       requestBody:
         required: true
         content:
@@ -68,7 +74,7 @@ paths:
       operationId: subscribeNewsletter
       tags: [newsletter]
       summary: Subscribe to newsletter
-      description: Subscribe an email address to the newsletter with idempotent duplicate prevention
+      description: Subscribe an email address to the newsletter with idempotent duplicate prevention. Rate limited to 3 requests per minute per email address.
       requestBody:
         required: true
         content:
@@ -422,13 +428,16 @@ components:
   schemas:
     HealthStatus:
       type: object
+      description: Server health status response
       properties:
         status:
           type: string
+          description: Health status indicator
       required:
         - status
     ContactSubmission:
       type: object
+      description: Contact form submission request
       properties:
         fullName:
           type: string
@@ -459,6 +468,7 @@ components:
         - message
     ContactResponse:
       type: object
+      description: Contact form submission response
       properties:
         id:
           type: integer
@@ -502,6 +512,7 @@ components:
         - createdAt
     NewsletterSubscription:
       type: object
+      description: Newsletter subscription request
       properties:
         email:
           type: string
@@ -524,6 +535,7 @@ components:
         - email
     NewsletterResponse:
       type: object
+      description: Newsletter subscription response
       properties:
         id:
           type: integer
@@ -559,6 +571,7 @@ components:
         - createdAt
     Error:
       type: object
+      description: Standard error response format
       properties:
         error:
           type: string
@@ -579,6 +592,7 @@ components:
         - error
     IndustryResponse:
       type: object
+      description: Industry data response
       properties:
         id:
           type: integer
@@ -612,6 +626,7 @@ components:
         - updatedAt
     IndustryListResponse:
       type: object
+      description: Paginated list of industries
       properties:
         industries:
           type: array
@@ -651,6 +666,7 @@ components:
         - pagination
     CreateBlogPostRequest:
       type: object
+      description: Request to create a new blog post
       properties:
         title:
           type: string
@@ -689,6 +705,7 @@ components:
         - industryId
     UpdateBlogPostRequest:
       type: object
+      description: Request to update an existing blog post
       properties:
         title:
           type: string
@@ -718,6 +735,7 @@ components:
           description: Publication status
     BlogPostResponse:
       type: object
+      description: Blog post data response
       properties:
         id:
           type: integer
@@ -788,6 +806,7 @@ components:
         - updatedAt
     BlogPostListResponse:
       type: object
+      description: Paginated list of blog posts
       properties:
         blogPosts:
           type: array
